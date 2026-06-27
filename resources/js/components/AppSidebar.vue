@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -14,9 +14,11 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, super_admin, admin, viewer } from '@/routes';
 import type { NavItem } from '@/types';
-
+const page = usePage();
+const isSuperAdmin = page.props.roles.includes('super_admin');
+const isAdmin = page.props.roles.includes('admin');
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
@@ -24,6 +26,34 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
 ];
+
+if (isSuperAdmin ) {
+    mainNavItems.push(
+        {
+            title: 'Super Admin',
+            href: super_admin(),
+            icon: LayoutGrid,
+        },
+    );
+}
+
+if (isSuperAdmin || isAdmin) {
+    mainNavItems.push(
+        {
+            title: 'Admin',
+            href: admin(),
+            icon: LayoutGrid,
+        },
+    );
+}
+
+mainNavItems.push(
+    {
+        title: 'Viewer',
+        href: viewer(),
+        icon: LayoutGrid,
+    },
+);
 
 const footerNavItems: NavItem[] = [
     {
