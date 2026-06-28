@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, Head } from '@inertiajs/vue3';
+import { Link, Head, useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button'
 import {
     Table,
@@ -13,6 +13,13 @@ import {
 import { index, create, edit, destroy } from '@/routes/users';
 import type { User } from '@/types';
 
+const form = useForm({});
+
+const handleDelete = (id: number) => {
+    if (confirm('Do you want to delete the user?')) {
+       form.delete(destroy(id).url);
+    }
+}
 
 defineOptions({
     layout: {
@@ -28,6 +35,7 @@ defineOptions({
 defineProps<{
     users: User[];
 }>();
+
 </script>
 
 <template>
@@ -57,9 +65,7 @@ defineProps<{
                             <Link :href="edit(user.id)">Edit</Link>
                         </Button>
 
-                        <Button as-child class="bg-red-500 ml-2">
-                            <Link :href="destroy(user.id)">Destroy</Link>
-                        </Button>
+                        <Button @click="handleDelete(user.id)" class="bg-red-500 ml-2">{{ form.processing ? 'Deleting' : 'Delete' }}</Button>
                     </TableCell>
                 </TableRow>
             </TableBody>
