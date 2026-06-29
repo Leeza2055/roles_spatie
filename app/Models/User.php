@@ -53,6 +53,6 @@ class User extends Authenticatable implements PasskeyUser
 
     public function getRoleNameAttribute()
     {
-        return $this->getRoleNames();
+        return $this->getRoleNames()->first();
     }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, Head, useForm } from '@inertiajs/vue3';
+import { Link, Head, useForm, usePage } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button'
 import {
     Table,
@@ -36,6 +36,9 @@ defineProps<{
     users: User[];
 }>();
 
+const page = usePage();
+const role_name = page.props.roles[0];
+
 </script>
 
 <template>
@@ -59,12 +62,11 @@ defineProps<{
                 <TableRow>
                     <TableCell>{{ user.name }}</TableCell>
                     <TableCell>{{ user.email }}</TableCell>
-                    <TableCell>{{ user.role_name.toString() }}</TableCell>
-                    <TableCell>
+                    <TableCell>{{ user.role_name }}</TableCell>
+                    <TableCell v-if="role_name == 'super_admin' || (role_name == 'admin' && user.role_name !== 'super_admin')">
                         <Button as-child class="bg-yellow-400">
                             <Link :href="edit(user.id)">Edit</Link>
                         </Button>
-
                         <Button @click="handleDelete(user.id)" class="bg-red-500 ml-2">{{ form.processing ? 'Deleting' : 'Delete' }}</Button>
                     </TableCell>
                 </TableRow>

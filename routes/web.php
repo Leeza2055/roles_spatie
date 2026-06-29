@@ -15,11 +15,11 @@ Route::middleware(['auth', 'verified', 'role:super_admin|admin|viewer'])->group(
 
 Route::middleware(['auth', 'verified', 'role:super_admin|admin'])->group(function () {
     Route::inertia('admin', 'Admin')->name('admin');
+    Route::resource('/users', UserController::class)->except('show');
 });
 
 Route::middleware(['auth', 'verified', 'role:super_admin'])->group(function () {
     Route::inertia('super_admin', 'SuperAdmin')->name('super_admin');
-    Route::resource('/users', UserController::class)->except('show');
 });
 
 require __DIR__.'/settings.php';

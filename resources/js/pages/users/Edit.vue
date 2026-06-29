@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button'
 import { index, update } from '@/routes/users';
 import type { User } from '@/types';
-
 
 defineOptions({
     layout: {
@@ -25,8 +24,10 @@ const props = defineProps<{ user: User }>();
 const form = useForm({
     name: props.user.name,
     email: props.user.email,
-    roles: props.user.role_name[0]
+    roles: props.user.role_name
 });
+const page = usePage();
+const role_name = page.props.roles[0];
 
 function submit() {
     form.put(update(props.user.id).url);
@@ -52,8 +53,8 @@ function submit() {
             <div class="mb-4">
                 <label for="roles" class="block mb-2.5 text-sm font-medium text-heading">Select a role</label>
                 <select id="roles" v-model="form.roles" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body">
-                    <option selected>Choose a role</option>
-                    <option value="super_admin">Super Admin</option>
+                    <option value="" disabled>Choose a role</option>
+                    <option v-if="role_name === 'super_admin'" value="super_admin">Super Admin</option>
                     <option value="admin">Admin</option>
                     <option value="viewer">Viewer</option>
                 </select>
