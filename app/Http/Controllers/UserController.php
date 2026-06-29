@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,18 +34,13 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required',
-            'roles' => 'required',
-        ]);
+        $userParams = $request->validated();
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
+            'name' => $userParams['name'],
+            'email' => $userParams['email'],
             'password' => Hash::make('password'),
         ]);
 
@@ -52,7 +48,7 @@ class UserController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        $user->assignRole($validated['roles']);
+        $user->assignRole($userParams['roles']);
 
         return redirect()->route('users.index');
     }
@@ -70,20 +66,16 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'roles' => 'required',
-        ]);
+        $userParams = $request->validated();
 
         $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
+            'name' => $userParams['name'],
+            'email' => $userParams['email'],
         ]);
-
-        $user->assignRole($validated['roles']);
+        $user->removeRole($user->role_name);
+        $user->assignRole($userParams['roles']);
 
         return redirect()->route('users.index');
     }
