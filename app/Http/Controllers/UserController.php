@@ -49,6 +49,7 @@ class UserController extends Controller
         ]);
 
         $user->assignRole($userParams['roles']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('User: :user created successfully.', ['user' => $user->name])]);
 
         return redirect()->route('users.index');
     }
@@ -76,6 +77,7 @@ class UserController extends Controller
         ]);
         $user->removeRole($user->role_name);
         $user->assignRole($userParams['roles']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('User: :user updated successfully.', ['user' => $user->name])]);
 
         return redirect()->route('users.index');
     }
@@ -86,6 +88,7 @@ class UserController extends Controller
     public function destroy(User $user): RedirectResponse
     {
         $user->delete();
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('User: :user deleted successfully.', ['user' => $user->name])]);
 
         return redirect()->route('users.index');
     }

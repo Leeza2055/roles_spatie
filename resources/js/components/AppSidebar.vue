@@ -15,6 +15,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard, super_admin, admin, viewer } from '@/routes';
+import { index as users_index} from '@/routes/users';
 import type { NavItem } from '@/types';
 const page = usePage();
 const isSuperAdmin = page.props.roles.includes('super_admin');
@@ -45,6 +46,14 @@ if (isSuperAdmin || isAdmin) {
             icon: LayoutGrid,
         },
     );
+
+    mainNavItems.push(
+        {
+            title: 'Users List',
+            href: users_index(),
+            icon: LayoutGrid
+        }
+    )
 }
 
 mainNavItems.push(

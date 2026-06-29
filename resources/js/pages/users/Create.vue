@@ -57,6 +57,7 @@ function submit() {
                     <option value="admin">Admin</option>
                     <option value="viewer">Viewer</option>
                 </select>
+                <p v-if="form.errors.roles" class="text-sm text-red-500 mt-0.5">{{ form.errors.roles }}</p>
             </div>
 
              <Button type="submit" class="mb-5">

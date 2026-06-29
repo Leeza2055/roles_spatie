@@ -42,7 +42,7 @@ defineProps<{
     <Head title="Users List" />
     <h1 class="sr-only">Users List</h1>
     <Button as-child class="bg-blue-500 w-fit mt-4 ml-4 float-right">
-        <Link :href="create()">Create a new user</Link>
+        <Link :href="create()">Create a new User</Link>
     </Button>
     <div class="p-8">
         <Table>
