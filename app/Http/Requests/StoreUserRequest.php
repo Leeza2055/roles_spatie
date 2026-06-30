@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreUserRequest extends FormRequest
 {
@@ -22,11 +23,13 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $roles = Auth::user()->role_name == 'super_admin' ? 'super_admin,admin,viewer' : 'admin,viewer';
+
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required',
-            'roles' => 'required|in:super_admin,admin,viewer',
+            'roles' => 'required|in:'.$roles,
         ];
     }
 }

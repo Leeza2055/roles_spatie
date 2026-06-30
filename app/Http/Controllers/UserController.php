@@ -6,6 +6,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,7 +19,6 @@ class UserController extends Controller
     public function index(): Response
     {
         $users = User::with('roles:id,name')->get();
-        // dd($users);
 
         return Inertia::render('users/Index', ['users' => $users]);
     }
@@ -59,6 +59,10 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
+        if ($this->permissionDenied($user)) {
+            return redirect()->route('dashboard');
+        }
+
         return Inertia::render('users/Edit', [
             'user' => $user,
         ]);
@@ -69,6 +73,10 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
+        if ($this->permissionDenied($user)) {
+            return redirect()->route('dashboard');
+        }
+
         $userParams = $request->validated();
 
         $user->update([
@@ -91,5 +99,19 @@ class UserController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('User: :user deleted successfully.', ['user' => $user->name])]);
 
         return redirect()->route('users.index');
+    }
+
+    private function permissionDenied(User $user): bool
+    {
+        if (Auth::user()->role_name === 'super_admin' || (Auth::user()->role_name === 'admin' && $user->role_name != 'super_admin')) {
+            return false;
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'error',
+            'message' => __('You do not have permission to access the page.'),
+        ]);
+
+        return true;
     }
 }
