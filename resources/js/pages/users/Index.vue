@@ -37,6 +37,7 @@ defineProps<{
 }>();
 
 const page = usePage();
+const auth_user = page.props.auth.user;
 const role_name = page.props.roles[0];
 
 </script>
@@ -67,7 +68,7 @@ const role_name = page.props.roles[0];
                         <Button as-child class="bg-yellow-400">
                             <Link :href="edit(user.id)">Edit</Link>
                         </Button>
-                        <Button @click="handleDelete(user.id)" class="bg-red-500 ml-2">{{ form.processing ? 'Deleting' : 'Delete' }}</Button>
+                        <Button v-if="user.id != auth_user.id" @click="handleDelete(user.id)" class="bg-red-500 ml-2">{{ form.processing ? 'Deleting' : 'Delete' }}</Button>
                     </TableCell>
                 </TableRow>
             </TableBody>
