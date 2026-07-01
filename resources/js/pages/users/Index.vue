@@ -64,11 +64,11 @@ const role_name = page.props.roles[0];
                     <TableCell>{{ user.name }}</TableCell>
                     <TableCell>{{ user.email }}</TableCell>
                     <TableCell>{{ user.role_name }}</TableCell>
-                    <TableCell v-if="role_name == 'super_admin' || (role_name == 'admin' && user.role_name !== 'super_admin')">
+                    <TableCell>
                         <Button as-child class="bg-yellow-400">
                             <Link :href="edit(user.id)">Edit</Link>
                         </Button>
-                        <Button v-if="user.id != auth_user.id" @click="handleDelete(user.id)" class="bg-red-500 ml-2">{{ form.processing ? 'Deleting' : 'Delete' }}</Button>
+                        <Button @click="handleDelete(user.id)" class="bg-red-500 ml-2">{{ form.processing ? 'Deleting' : 'Delete' }}</Button>
                     </TableCell>
                 </TableRow>
             </TableBody>

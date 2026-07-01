@@ -6,8 +6,6 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -41,10 +39,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $userParams['name'],
             'email' => $userParams['email'],
-            'password' => Hash::make('password'),
-        ]);
-
-        $user->forceFill([
+            'password' => $userParams['password'],
             'email_verified_at' => now(),
         ]);
 
@@ -57,11 +52,9 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user)
+    public function edit(User $user): Response
     {
-        if ($this->permissionDenied($user)) {
-            return redirect()->route('dashboard');
-        }
+        $this->authorize('update', $user);
 
         return Inertia::render('users/Edit', [
             'user' => $user,
@@ -73,9 +66,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        if ($this->permissionDenied($user)) {
-            return redirect()->route('dashboard');
-        }
+        $this->authorize('update', $user);
 
         $userParams = $request->validated();
 
@@ -83,8 +74,7 @@ class UserController extends Controller
             'name' => $userParams['name'],
             'email' => $userParams['email'],
         ]);
-        $user->removeRole($user->role_name);
-        $user->assignRole($userParams['roles']);
+        $user->syncRoles($userParams['roles']);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('User: :user updated successfully.', ['user' => $user->name])]);
 
         return redirect()->route('users.index');
@@ -95,23 +85,11 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
+        $this->authorize('delete', $user);
+
         $user->delete();
         Inertia::flash('toast', ['type' => 'success', 'message' => __('User: :user deleted successfully.', ['user' => $user->name])]);
 
         return redirect()->route('users.index');
-    }
-
-    private function permissionDenied(User $user): bool
-    {
-        if (Auth::user()->role_name === 'super_admin' || (Auth::user()->role_name === 'admin' && $user->role_name != 'super_admin')) {
-            return false;
-        }
-
-        Inertia::flash('toast', [
-            'type' => 'error',
-            'message' => __('You do not have permission to access the page.'),
-        ]);
-
-        return true;
     }
 }
