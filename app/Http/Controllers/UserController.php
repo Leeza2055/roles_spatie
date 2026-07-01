@@ -60,6 +60,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         if ($this->permissionDenied($user)) {
+            $this->permissionAccessMessage();
+
             return redirect()->route('dashboard');
         }
 
@@ -74,6 +76,8 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         if ($this->permissionDenied($user)) {
+            $this->permissionAccessMessage();
+
             return redirect()->route('dashboard');
         }
 
@@ -95,6 +99,24 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
+        if (Auth::user()->id == $user->id) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => __('You cannot delete logged in user.'),
+            ]);
+
+            return redirect()->route('dashboard');
+        }
+
+        if ($this->permissionDenied($user)) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => __('You cannot delete super admin role'),
+            ]);
+
+            return redirect()->route('dashboard');
+        }
+
         $user->delete();
         Inertia::flash('toast', ['type' => 'success', 'message' => __('User: :user deleted successfully.', ['user' => $user->name])]);
 
@@ -107,11 +129,14 @@ class UserController extends Controller
             return false;
         }
 
+        return true;
+    }
+
+    private function permissionAccessMessage()
+    {
         Inertia::flash('toast', [
             'type' => 'error',
             'message' => __('You do not have permission to access the page.'),
         ]);
-
-        return true;
     }
 }
