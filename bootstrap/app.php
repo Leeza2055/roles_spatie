@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 use Spatie\Permission\Middleware\RoleMiddleware;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -35,16 +36,19 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
 
-        $exceptions->render(function (UnauthorizedException $e, Request $request) {
+        $handleUnauthorized = function (Request $request) {
             if ($request->is('api/*')) {
-                return null; // fall through default JSON 403
+                return null;
             }
 
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => __('You do not have permission to access the page.'),
+                'message' => __('Unauthorized access'),
             ]);
 
             return redirect()->route('dashboard');
-        });
+        };
+
+        $exceptions->render(fn (AccessDeniedHttpException $e, Request $request) => $handleUnauthorized($request));
+        $exceptions->render(fn (UnauthorizedException $e, Request $request) => $handleUnauthorized($request));
     })->create();
